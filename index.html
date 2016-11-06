@@ -1,0 +1,228 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Surrounder!</title>
+        <script src="../phaser.js"></script>
+    </head>
+    <body>
+
+    <script type="text/javascript">
+
+    window.onload = function() {
+
+      var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update });
+      var end1;
+      var end2;
+      var rope2end1;
+      var rope2end2;
+      var arrows;
+      var numpad;
+      var wsad;
+      var ijkl;
+
+      function preload() {
+
+        game.load.spritesheet('chain', 'assets/sprites/chain.png', 16, 26);
+
+      }
+
+      function create() {
+        arrows = game.input.keyboard.createCursorKeys();
+        numpad = {
+          up: game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_8),
+          down: game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_5),
+          left: game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_4),
+          right: game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_6),
+        };
+        wsad = {
+          up: game.input.keyboard.addKey(Phaser.Keyboard.W),
+          down: game.input.keyboard.addKey(Phaser.Keyboard.S),
+          left: game.input.keyboard.addKey(Phaser.Keyboard.A),
+          right: game.input.keyboard.addKey(Phaser.Keyboard.D),
+        };
+        ijkl = {
+          up: game.input.keyboard.addKey(Phaser.Keyboard.I),
+          down: game.input.keyboard.addKey(Phaser.Keyboard.K),
+          left: game.input.keyboard.addKey(Phaser.Keyboard.J),
+          right: game.input.keyboard.addKey(Phaser.Keyboard.L),
+        };
+
+        var bmd = game.add.bitmapData(800, 600);
+
+        bmd.ctx.beginPath();
+        bmd.ctx.rect(0, 0, 800, 600);
+        bmd.ctx.fillStyle = '#f7a868';
+        bmd.ctx.fill();
+        game.physics.startSystem(Phaser.Physics.P2JS);
+        game.physics.p2.gravity.y = 0;
+
+        createRopes();
+      }
+
+      function createRopes(length, xAnchor, yAnchor) {
+
+        var lastRect;
+        var length = 25;
+        var height = 20;        //  Height for the physics body - your image height is 8px
+        var width = 16;         //  This is the width for the physics body. If too small the rectangles will get scrambled together.
+        var maxForce = 20000;   //  The force that holds the rectangles together.
+        var xAnchor = 64;
+        var yAnchor = 64;
+
+        for (var i = 0; i <= length; i++) {
+            var x = xAnchor + (i * width);
+            var y = yAnchor;
+
+            var bmd = game.add.bitmapData(width, height);
+
+            bmd.ctx.beginPath();
+            bmd.ctx.rect(0, 0, width, height);
+            bmd.ctx.fillStyle = '#ffffff';
+            bmd.ctx.fill();
+
+            //  Add sprite (and switch frame every 2nd time)
+            newRect = game.add.sprite(x, y, bmd);
+
+            if (i === 0) {
+              end1 = newRect;
+            }
+            //  Enable physicsbody
+            game.physics.p2.enable(newRect, false);
+
+            //  Set custom rectangle
+            newRect.body.setRectangle(width, height);
+
+            //  After the first rectangle is created we can add the constraint
+            if (lastRect) {
+                game.physics.p2.createRevoluteConstraint(newRect, [-10, 0], lastRect, [10, 0], maxForce);
+            }
+
+            if (i === length) {
+              end2 = newRect;
+            }
+
+            lastRect = newRect;
+
+        }
+
+        yAnchor = 600 - 64;
+        lastRect = null;
+
+        for (var i = 0; i <= length; i++) {
+            var x = xAnchor + (i * width);
+            var y = yAnchor;
+
+            var bmd = game.add.bitmapData(width, height);
+
+            bmd.ctx.beginPath();
+            bmd.ctx.rect(0, 0, width, height);
+            bmd.ctx.fillStyle = '#FFFF00';
+            bmd.ctx.fill();
+
+            //  Add sprite (and switch frame every 2nd time)
+            newRect = game.add.sprite(x, y, bmd);
+
+            if (i === 0) {
+              rope2end1 = newRect;
+            }
+            //  Enable physicsbody
+            game.physics.p2.enable(newRect, false);
+
+            //  Set custom rectangle
+            newRect.body.setRectangle(width, height);
+
+            //  After the first rectangle is created we can add the constraint
+            if (lastRect) {
+                game.physics.p2.createRevoluteConstraint(newRect, [-10, 0], lastRect, [10, 0], maxForce);
+            }
+
+            if (i === length) {
+              rope2end2 = newRect;
+            }
+
+            lastRect = newRect;
+
+        }
+
+      }
+
+      function update() {
+        if (arrows.left.isDown && end1.body.velocity.x > -800) {
+        	end1.body.velocity.x -= 80;
+        }
+        else if (arrows.right.isDown && end1.body.velocity.x < 800) {
+        	end1.body.velocity.x += 80;
+        }
+
+        if (arrows.up.isDown && end1.body.velocity.y > -800) {
+        	end1.body.velocity.y -= 80;
+        }
+        else if (arrows.down.isDown && end1.body.velocity.y < 800) {
+        	end1.body.velocity.y += 80;
+        }
+
+
+        if (numpad.left.isDown && end2.body.velocity.x > -800) {
+        	end2.body.velocity.x -= 80;
+        }
+        else if (numpad.right.isDown && end2.body.velocity.x < 800) {
+        	end2.body.velocity.x += 80;
+        }
+
+        if (numpad.up.isDown && end2.body.velocity.y > -800) {
+        	end2.body.velocity.y -= 80;
+        }
+        else if (numpad.down.isDown && end2.body.velocity.y < 800) {
+        	end2.body.velocity.y += 80;
+        }
+
+
+        if (wsad.left.isDown && rope2end1.body.velocity.x > -800) {
+        	rope2end1.body.velocity.x -= 80;
+        }
+        else if (wsad.right.isDown && rope2end1.body.velocity.x < 800) {
+        	rope2end1.body.velocity.x += 80;
+        }
+
+        if (wsad.up.isDown && rope2end1.body.velocity.y > -800) {
+        	rope2end1.body.velocity.y -= 80;
+        }
+        else if (wsad.down.isDown && rope2end1.body.velocity.y < 800) {
+        	rope2end1.body.velocity.y += 80;
+        }
+
+
+        if (ijkl.left.isDown && rope2end2.body.velocity.x > -800) {
+        	rope2end2.body.velocity.x -= 80;
+        }
+        else if (ijkl.right.isDown && rope2end2.body.velocity.x < 800) {
+        	rope2end2.body.velocity.x += 80;
+        }
+
+        if (ijkl.up.isDown && rope2end2.body.velocity.y > -800) {
+        	rope2end2.body.velocity.y -= 80;
+        }
+        else if (ijkl.down.isDown && rope2end2.body.velocity.y < 800) {
+        	rope2end2.body.velocity.y += 80;
+        }
+
+        /*var boxes = game.stage.children[0].children;
+
+        for (var i = 0; i < boxes.length; i++) {
+          var box = boxes[i];
+          if (box.position.x > 780 || box.position.x < 20 || box.position.y < 20 || box.position.y > 580) {
+            game.world.removeAll();
+            createRopes();
+            break;
+          }
+        }*/
+
+      }
+
+    };
+
+    </script>
+
+    </body>
+</html>
